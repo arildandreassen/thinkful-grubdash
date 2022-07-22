@@ -16,31 +16,35 @@ const read = (req, res, next) => {
 };
 
 const create = (req, res, next) => {
-  const { dish } = res.locals;
+  const { body } = res.locals;
   const newDish = {
-    ...dish,
+    ...body,
     id: nextId(),
   };
   dishes.push(newDish);
-  res.status(200).json({ data: newDish });
+  res.status(201).json({ data: newDish });
 };
 
 const update = (req, res, next) => {
-  const { dish } = res.locals;
-  res.status(200).json({ data: dish });
+  const { dish, body } = res.locals;
+  const updateDish = {
+    ...dish,
+    ...body,
+  };
+  updateDish.id = dish.id;
+  res.status(200).json({ data: updateDish });
 };
 
 const validateExists = (req, res, next) => {
   const { dishId } = req.params;
   const dish = dishes.find((dish) => dish.id === dishId);
-
   if (dish) {
     res.locals.dish = dish;
     res.locals.dishId = dishId;
     return next();
   }
 
-  return next({ status: 404, message: `Dish does not exist: ${dishId}` });
+  next({ status: 404, message: `Dish does not exist: ${dishId}` });
 };
 
 const validateBody = (req, res, next) => {
@@ -59,21 +63,20 @@ const validateBody = (req, res, next) => {
   } else if (!image_url || image_url === "") {
     return next({ status: 400, message: "Dish must include a image_url" });
   } else {
-    res.locals.dish = req.body.data;
-    return next();
+    res.locals.body = req.body.data;
+    next();
   }
 };
 
 const validateMatch = (req, res, next) => {
-  const { dishId, dish } = res.locals;
-  if (dishId !== dish.id) {
+  const { dishId, body } = res.locals;
+  if (body.id && dishId !== body.id) {
     return next({
-      status: 404,
-      message: `Dish id does not match route id. Dish: ${dish.id}, Route: ${dishId}`,
+      status: 400,
+      message: `Dish id does not match route id. Dish: ${body.id}, Route: ${dishId}`,
     });
   }
-
-  return next();
+  next();
 };
 
 module.exports = {

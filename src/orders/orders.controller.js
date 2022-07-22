@@ -18,9 +18,9 @@ const list = (req, res, next) => {
 };
 
 const create = (req, res, next) => {
-  const { order } = res.locals;
+  const { body } = res.locals;
   const newOrder = {
-    ...order,
+    ...body,
     id: nextId(),
   };
   orders.push(newOrder);
@@ -33,11 +33,13 @@ const read = (req, res, next) => {
 };
 
 const update = (req, res, next) => {
-  const { order, index } = res.locals;
-
-  orders.splice(index, 1);
-  orders.push(order);
-  res.status(201).json({ data: order });
+  const { order, body } = res.locals;
+  const updatedOrder = {
+    ...order,
+    ...body,
+  };
+  updatedOrder.id = order.id;
+  res.status(200).json({ data: updatedOrder });
 };
 
 const destroy = (req, res, next) => {
@@ -78,7 +80,7 @@ const validateBody = (req, res, next) => {
       status: 400,
       message: "Order must include a dish",
     });
-  } else if (dishes === []) {
+  } else if (!Array.isArray(dishes) || dishes.length === 0) {
     return next({
       status: 400,
       message: "Order must include at least one dish",
@@ -89,7 +91,7 @@ const validateBody = (req, res, next) => {
     if (
       dish.quantity === undefined ||
       typeof dish.quantity !== "number" ||
-      dish.quantity < 0
+      dish.quantity === 0
     ) {
       return next({
         status: 400,
@@ -98,7 +100,7 @@ const validateBody = (req, res, next) => {
     }
   }
 
-  res.locals.order = req.body.data;
+  res.locals.body = req.body.data;
   return next();
 };
 
@@ -106,9 +108,9 @@ const validateUpdate = (req, res, next) => {
   const { data: { id, status } = {} } = req.body;
   const { orderId } = req.params;
   const { order } = res.locals;
-  if (id !== orderId) {
+  if (id && id !== orderId) {
     return next({
-      status: 404,
+      status: 400,
       message: `Order id does not match route id. Order: ${id}, Route: ${orderId}.`,
     });
   } else if (!validDeliveryStatus.includes(status)) {
