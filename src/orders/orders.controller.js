@@ -33,12 +33,17 @@ const read = (req, res, next) => {
 };
 
 const update = (req, res, next) => {
-  const { order, body } = res.locals;
+  const {
+    order,
+    body: { deliverTo, mobileNumber, status, dishes },
+  } = res.locals;
   const updatedOrder = {
     ...order,
-    ...body,
+    deliverTo,
+    mobileNumber,
+    status,
+    dishes,
   };
-  updatedOrder.id = order.id;
   res.status(200).json({ data: updatedOrder });
 };
 

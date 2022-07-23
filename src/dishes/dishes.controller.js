@@ -26,12 +26,17 @@ const create = (req, res, next) => {
 };
 
 const update = (req, res, next) => {
-  const { dish, body } = res.locals;
+  const {
+    dish,
+    body: { name, description, price, image_url },
+  } = res.locals;
   const updateDish = {
     ...dish,
-    ...body,
+    name,
+    description,
+    price,
+    image_url,
   };
-  updateDish.id = dish.id;
   res.status(200).json({ data: updateDish });
 };
 
