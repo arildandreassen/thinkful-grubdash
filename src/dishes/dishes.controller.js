@@ -6,16 +6,16 @@ const dishes = require(path.resolve("src/data/dishes-data"));
 // Use this function to assign ID's when necessary
 const nextId = require("../utils/nextId");
 
-const list = (req, res, next) => {
+function list (req, res, next) {
   res.json({ data: dishes });
 };
 
-const read = (req, res, next) => {
+function read (req, res, next) {
   const { dish } = res.locals;
   res.json({ data: dish });
 };
 
-const create = (req, res, next) => {
+function create (req, res, next) {
   const { body } = res.locals;
   const newDish = {
     ...body,
@@ -25,7 +25,7 @@ const create = (req, res, next) => {
   res.status(201).json({ data: newDish });
 };
 
-const update = (req, res, next) => {
+function update (req, res, next) {
   const {
     dish,
     body: { name, description, price, image_url },
@@ -40,7 +40,7 @@ const update = (req, res, next) => {
   res.status(200).json({ data: updateDish });
 };
 
-const validateExists = (req, res, next) => {
+function validateExists (req, res, next) {
   const { dishId } = req.params;
   const dish = dishes.find((dish) => dish.id === dishId);
   if (dish) {
@@ -52,7 +52,7 @@ const validateExists = (req, res, next) => {
   next({ status: 404, message: `Dish does not exist: ${dishId}` });
 };
 
-const validateBody = (req, res, next) => {
+function validateBody (req, res, next) {
   const { data: { name, description, price, image_url } = {} } = req.body;
   if (!name || name === "") {
     return next({ status: 400, message: "Dish must include a name" });
@@ -73,7 +73,7 @@ const validateBody = (req, res, next) => {
   }
 };
 
-const validateMatch = (req, res, next) => {
+function validateMatch (req, res, next) {
   const { dishId, body } = res.locals;
   if (body.id && dishId !== body.id) {
     return next({

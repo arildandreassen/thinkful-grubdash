@@ -13,11 +13,11 @@ const validDeliveryStatus = [
   "delivered",
 ];
 
-const list = (req, res, next) => {
+function list (req, res, next) {
   res.json({ data: orders });
 };
 
-const create = (req, res, next) => {
+function create (req, res, next) {
   const { body } = res.locals;
   const newOrder = {
     ...body,
@@ -27,12 +27,12 @@ const create = (req, res, next) => {
   res.status(201).json({ data: newOrder });
 };
 
-const read = (req, res, next) => {
+function read (req, res, next) {
   const { order } = res.locals;
   res.json({ data: order });
 };
 
-const update = (req, res, next) => {
+function update (req, res, next) {
   const {
     order,
     body: { deliverTo, mobileNumber, status, dishes },
@@ -47,13 +47,13 @@ const update = (req, res, next) => {
   res.status(200).json({ data: updatedOrder });
 };
 
-const destroy = (req, res, next) => {
+function destroy (req, res, next) {
   const { index, order } = res.locals;
   orders.splice(index, 1);
   res.status(204).json({ data: order });
 };
 
-const validateExists = (req, res, next) => {
+function validateExists (req, res, next) {
   const { orderId } = req.params;
   const order = orders.find((order) => order.id === orderId);
   const index = orders.findIndex((order) => order.id === orderId);
@@ -68,7 +68,7 @@ const validateExists = (req, res, next) => {
   return next({ status: 404, message: `Order ${orderId} not found` });
 };
 
-const validateBody = (req, res, next) => {
+function validateBody (req, res, next) {
   const { data: { deliverTo, mobileNumber, dishes } = {} } = req.body;
   if (!deliverTo || deliverTo === "") {
     return next({
@@ -92,6 +92,7 @@ const validateBody = (req, res, next) => {
     });
   }
 
+  // Loop through the dish array and verify that 'quantity' is a number
   for (const [index, dish] of dishes.entries()) {
     if (
       dish.quantity === undefined ||
@@ -109,7 +110,7 @@ const validateBody = (req, res, next) => {
   return next();
 };
 
-const validateUpdate = (req, res, next) => {
+function validateUpdate (req, res, next) {
   const { data: { id, status } = {} } = req.body;
   const { orderId } = req.params;
   const { order } = res.locals;
@@ -134,7 +135,7 @@ const validateUpdate = (req, res, next) => {
   next();
 };
 
-const canBeDestroyed = (req, res, next) => {
+function canBeDestroyed (req, res, next) {
   const { order } = res.locals;
   if (order.status !== "pending") {
     return next({
